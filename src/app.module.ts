@@ -1,17 +1,14 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { SongsModule } from './songs/songs.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
-import { SongsController } from './songs/songs.controller';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [SongsModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    SongsModule,
+  ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes(SongsController);
-  }
-}
+export class AppModule {}
