@@ -1,20 +1,22 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { SongsController } from './songs.controller';
 import { SongsService } from './songs.service';
-import { connection } from 'src/common/constants/connection';
+import { AuthMiddleware } from 'src/common/middleware/auth/auth.middeware';
 
 @Module({
   controllers: [SongsController],
-  providers: [
-    SongsService,
-    // {
-    //   provide: SongsService,
-    //   useClass: SongsService,
-    // },
-    {
-      provide: 'CONNECTION',
-      useValue: connection,
-    },
-  ],
+  providers: [SongsService],
 })
-export class SongsModule {}
+export class SongsModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .exclude({ path: 'songs', method: RequestMethod['GET'] })
+      .forRoutes('songs');
+  }
+}
